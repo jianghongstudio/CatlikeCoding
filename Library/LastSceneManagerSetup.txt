@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Scene/Procedural Grid.unity
+- path: Assets/Scene/Procedural Cube.unity
   isLoaded: 1
   isActive: 1
