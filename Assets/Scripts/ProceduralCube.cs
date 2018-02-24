@@ -8,7 +8,7 @@ public class ProceduralCube : MonoBehaviour {
     public int roundness;
 
 
-    int[] triangles;
+    //int[] triangles;
     Vector3[] vertices;
     Vector3[] normals;
 
@@ -119,25 +119,45 @@ public class ProceduralCube : MonoBehaviour {
 
     void CreateTriangles()
     {
-        int quadSize = (width * height + width * depth + height * depth) * 2;
+        //int quadSize = (width * height + width * depth + height * depth) * 2;
 
-        triangles = new int[quadSize * 6];
+        //triangles = new int[quadSize * 6];
+
+        int[] trianglesX = new int[depth * height * 12];
+        int[] trianglesY = new int[width * depth * 12];
+        int[] trianglesZ = new int[width * height * 12];
 
         int ring = (width + depth) * 2;
-        int t = 0, v = 0;
+        int tX = 0, tY = 0, tZ = 0, v = 0;
 
         for (int y = 0; y < height; y++, v++)
         {
-            for (int q = 0; q < ring - 1; q++, v++)
+            for (int q = 0; q < width; q++, v++)
             {
-                t = SetQuad(triangles, t, v, v + 1, v + ring, v + ring + 1);
+                tZ = SetQuad(trianglesZ, tZ, v, v + 1, v + ring, v + ring + 1);
             }
-            t = SetQuad(triangles, t, v, v - ring + 1, v + ring, v + 1);
+            for (int q = 0; q < depth; q++, v++)
+            {
+                tX = SetQuad(trianglesX, tX, v, v + 1, v + ring, v + ring + 1);
+            }
+            for (int q = 0; q < width; q++, v++)
+            {
+                tZ = SetQuad(trianglesZ, tZ, v, v + 1, v + ring, v + ring + 1);
+            }
+            for (int q = 0; q < depth - 1; q++, v++)
+            {
+                tX = SetQuad(trianglesX, tX, v, v + 1, v + ring, v + ring + 1);
+            }
+            tX = SetQuad(trianglesX, tX, v, v - ring + 1, v + ring, v + 1);
+
         }
 
-        t = CreateTopFace(triangles, t, ring);
-        t = CreateBottomFace(triangles, t, ring);
-        mesh.triangles = triangles;
+        tY = CreateTopFace(trianglesY, tY, ring);
+        tY = CreateBottomFace(trianglesY, tY, ring);
+        mesh.subMeshCount = 3;
+        mesh.SetTriangles(trianglesZ, 0);
+        mesh.SetTriangles(trianglesX, 1);
+        mesh.SetTriangles(trianglesY, 2);
         mesh.RecalculateNormals();
     }
 
