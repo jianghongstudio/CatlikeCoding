@@ -5,14 +5,18 @@ using System.Collections;
 public class ProceduralCube : MonoBehaviour {
 
     public int width, height, depth;
+    public int roundness;
+
 
     int[] triangles;
     Vector3[] vertices;
+    Vector3[] normals;
+
     Mesh mesh;
 
     private void Awake()
     {
-        StartCoroutine(Generate());
+        Generate();
     }
     // Use this for initialization
     void Start () {
@@ -30,20 +34,28 @@ public class ProceduralCube : MonoBehaviour {
         {
             return;
         }
-        Gizmos.color = Color.black;
-        for(int i=0;i<vertices.Length;i++)
+
+        for (int i = 0; i < vertices.Length; i++)
         {
+            Gizmos.color = Color.black;
             Gizmos.DrawSphere(vertices[i], 0.1f);
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawRay(vertices[i], normals[i]);
+
         }
     }
 
-    IEnumerator Generate()
+    void Generate()
     {
         GetComponent<MeshFilter>().mesh = mesh = new Mesh();
         mesh.name = "Produral Cube";
 
-        WaitForSeconds wait = new WaitForSeconds(0.05f);
+        CreateVertices();
+        CreateTriangles();
+    }
 
+    void CreateVertices()
+    {
         int cornerVertices = 8;
         int edgeVertices = (width + height + depth - 3) * 4;
         int faceVertices = (
@@ -52,35 +64,32 @@ public class ProceduralCube : MonoBehaviour {
             (height - 1) * (depth - 1)) * 2;
 
         vertices = new Vector3[cornerVertices + edgeVertices + faceVertices];
+        normals = new Vector3[vertices.Length];
 
         int index = 0;
 
         #region Create Vertices like Tutorials
 
-        for(int y=0;y<=height;y++)
+        for (int y = 0; y <= height; y++)
         {
             for (int x = 0; x <= width; x++)
             {
-                vertices[index++] = new Vector3(x, y, 0);
-                yield return wait;
+                SetVertex(index++,x, y, 0);
             }
 
             for (int z = 1; z <= depth; z++)
             {
-                vertices[index++] = new Vector3(width, y, z);
-                yield return wait;
+                SetVertex(index++, width, y, z);                
             }
 
             for (int x = width - 1; x >= 0; x--)
             {
-                vertices[index++] = new Vector3(x, y, depth);
-                yield return wait;
+                SetVertex(index++, x, y, depth);
             }
 
             for (int z = depth - 1; z > 0; z--)
             {
-                vertices[index++] = new Vector3(0, y, z);
-                yield return wait;
+                SetVertex(index++, 0, y, z);
             }
         }
 
@@ -88,8 +97,7 @@ public class ProceduralCube : MonoBehaviour {
         {
             for (int x = 1; x < width; x++)
             {
-                vertices[index++] = new Vector3(x, height, z);
-                yield return wait;
+                SetVertex(index++, x, height, z);
             }
         }
 
@@ -97,8 +105,7 @@ public class ProceduralCube : MonoBehaviour {
         {
             for (int x = 1; x < width; x++)
             {
-                vertices[index++] = new Vector3(x, 0, z);
-                yield return wait;
+                SetVertex(index++, x, 0, z);
             }
         }
         #endregion
@@ -108,6 +115,10 @@ public class ProceduralCube : MonoBehaviour {
 
         mesh.vertices = vertices;
 
+    }
+
+    void CreateTriangles()
+    {
         int quadSize = (width * height + width * depth + height * depth) * 2;
 
         triangles = new int[quadSize * 6];
@@ -115,16 +126,13 @@ public class ProceduralCube : MonoBehaviour {
         int ring = (width + depth) * 2;
         int t = 0, v = 0;
 
-        for(int y=0;y<height;y++,v++)
+        for (int y = 0; y < height; y++, v++)
         {
             for (int q = 0; q < ring - 1; q++, v++)
             {
                 t = SetQuad(triangles, t, v, v + 1, v + ring, v + ring + 1);
-                mesh.triangles = triangles;
-                yield return wait;
             }
             t = SetQuad(triangles, t, v, v - ring + 1, v + ring, v + 1);
-            mesh.triangles = triangles;
         }
 
         t = CreateTopFace(triangles, t, ring);
@@ -212,5 +220,38 @@ public class ProceduralCube : MonoBehaviour {
         t = SetQuad(triangles, t, vTop, vTop - 1, vMid, vTop - 2);
 
         return t;
+    }
+
+    private void SetVertex(int i, int x, int y, int z)
+    {
+        Vector3 inner = vertices[i] = new Vector3(x, y, z);
+
+        if (x < roundness)
+        {
+            inner.x = roundness;
+        }
+        else if (x > width - roundness)
+        {
+            inner.x = width - roundness;
+        }
+        if (y < roundness)
+        {
+            inner.y = roundness;
+        }
+        else if (y > height - roundness)
+        {
+            inner.y = height - roundness;
+        }
+        if (z < roundness)
+        {
+            inner.z = roundness;
+        }
+        else if (z > depth - roundness)
+        {
+            inner.z = depth - roundness;
+        }
+        normals[i] = (vertices[i] - inner).normalized;
+        vertices[i] = inner + normals[i] * roundness;
+
     }
 }
