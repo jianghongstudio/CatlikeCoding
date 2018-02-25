@@ -11,6 +11,7 @@ public class ProceduralCube : MonoBehaviour {
     //int[] triangles;
     Vector3[] vertices;
     Vector3[] normals;
+    Color32[] uvCube;
 
     Mesh mesh;
 
@@ -52,6 +53,7 @@ public class ProceduralCube : MonoBehaviour {
 
         CreateVertices();
         CreateTriangles();
+        CreateColliders();
     }
 
     void CreateVertices()
@@ -65,6 +67,7 @@ public class ProceduralCube : MonoBehaviour {
 
         vertices = new Vector3[cornerVertices + edgeVertices + faceVertices];
         normals = new Vector3[vertices.Length];
+        uvCube = new Color32[vertices.Length];
 
         int index = 0;
 
@@ -114,6 +117,8 @@ public class ProceduralCube : MonoBehaviour {
         #endregion
 
         mesh.vertices = vertices;
+        mesh.normals = normals;
+        mesh.colors32 = uvCube;
 
     }
 
@@ -272,6 +277,44 @@ public class ProceduralCube : MonoBehaviour {
         }
         normals[i] = (vertices[i] - inner).normalized;
         vertices[i] = inner + normals[i] * roundness;
+        uvCube[i] = new Color32((byte)x, (byte)y, (byte)z, 0);
+    }
+    private void AddBoxCollider(float x, float y, float z)
+    {
+        BoxCollider c = gameObject.AddComponent<BoxCollider>();
+        c.size = new Vector3(x, y, z);
+    }
+    private void AddCapsuleCollider(int direction, float x, float y, float z)
+    {
+        CapsuleCollider c = gameObject.AddComponent<CapsuleCollider>();
+        c.center = new Vector3(x, y, z);
+        c.direction = direction;
+        c.radius = roundness;
+        c.height = c.center[direction] * 2f;
+    }
+    private void CreateColliders()
+    {
+        AddBoxCollider(width, height - roundness * 2, depth - roundness * 2);
+        AddBoxCollider(width - roundness * 2, height, depth - roundness * 2);
+        AddBoxCollider(width - roundness * 2, height - roundness * 2, depth);
 
+        Vector3 min = Vector3.one * roundness;
+        Vector3 half = new Vector3(width, height, depth) * 0.5f;
+        Vector3 max = new Vector3(width, height, depth) - min;
+
+        AddCapsuleCollider(0, half.x, min.y, min.z);
+        AddCapsuleCollider(0, half.x, min.y, max.z);
+        AddCapsuleCollider(0, half.x, max.y, min.z);
+        AddCapsuleCollider(0, half.x, max.y, max.z);
+
+        AddCapsuleCollider(1, min.x, half.y, min.z);
+        AddCapsuleCollider(1, min.x, half.y, max.z);
+        AddCapsuleCollider(1, max.x, half.y, min.z);
+        AddCapsuleCollider(1, max.x, half.y, max.z);
+
+        AddCapsuleCollider(2, min.x, min.y, half.z);
+        AddCapsuleCollider(2, min.x, max.y, half.z);
+        AddCapsuleCollider(2, max.x, min.y, half.z);
+        AddCapsuleCollider(2, max.x, max.y, half.z);
     }
 }
