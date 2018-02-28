@@ -47,9 +47,9 @@ public class HexGrid : MonoBehaviour {
         HexCell cell = cells[i] = Instantiate<HexCell>(hexPrefab);
         cell.transform.SetParent(transform);
         cell.transform.localPosition = postion;
-        Text cellLabel = Instantiate<Text>(cellLabelPrefab);
-        cellLabel.rectTransform.SetParent(gridCanvas.transform,false);
-        cellLabel.rectTransform.anchoredPosition = new Vector2(postion.x, postion.z);
-        cellLabel.text = x.ToString() + "\n" + z.ToString();
+        //Text cellLabel = Instantiate<Text>(cellLabelPrefab);
+        //cellLabel.rectTransform.SetParent(gridCanvas.transform,false);
+        //cellLabel.rectTransform.anchoredPosition = new Vector2(postion.x, postion.z);
+        //cellLabel.text = x.ToString() + "\n" + z.ToString();
     }
 }

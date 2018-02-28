@@ -70,11 +70,15 @@
     <Compile Include="Assets\Scripts\FPSCounter.cs" />
     <Compile Include="Assets\Scripts\FPSDisplay.cs" />
     <Compile Include="Assets\Scripts\Fractal.cs" />
+    <Compile Include="Assets\Scripts\HexCell.cs" />
+    <Compile Include="Assets\Scripts\HexGrid.cs" />
+    <Compile Include="Assets\Scripts\HexMatrics.cs" />
     <Compile Include="Assets\Scripts\HourIndicatorSpawer.cs" />
     <Compile Include="Assets\Scripts\Nucleon.cs" />
     <Compile Include="Assets\Scripts\NucleonSpawner.cs" />
     <Compile Include="Assets\Scripts\ProceduralCube.cs" />
     <Compile Include="Assets\Scripts\ProceduralGrid.cs" />
+    <Compile Include="Assets\Scripts\ProceduralSphere.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shaders\Rounded Cube Grid.shader" />
